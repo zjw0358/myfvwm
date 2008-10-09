@@ -1,0 +1,926 @@
+#========================================================
+#==============================================================================
+这个是 .fvwm2rc文件
+#========================================================
+#=========================================================
+###########
+Read For-fvwm2rc-FvwmPager
+Read /etc/X11/fvwm/menudefs.hook Quiet
+Read menudefs.hook Quiet
+# 加入一些路径,FVWM在这些路径中查找后面要用到的图标
+ImagePath ${HOME}/.fvwm/image:+
+ImagePath ${HOME}/.fvwm/icons:+
+#ImagePath /usr/share/icons:+
+#读入icon配置
+
+
+# 窗口最大化是两边撑满,下面相应的留出25
+EwmhBaseStruts 0 0 0 25
+
+#使用EdgeScroll命令禁止flipping pages（鼠标不会因为接近屏幕边缘而进入相近的桌面）
+EdgeScroll 0 0
+
+# 用来设定桌面的大小,
+DeskTopSize 2x2
+# 用来设定鼠标形状,
+CursorStyle root top_left_arrow
+CursorStyle stroke hand2
+#CursorStyle stroke pencil
+
+
+# 这里是FVWM的启动函数，加载一些模块
+AddToFunc StartFunction
+#墙纸路径tobacco_sky.png
++ I Exec exec fvwm-root -r ~/.fvwm/wallpapers/wall-5.png
++ I Module FvwmAnimate
++ I Module FvwmPager
+#+ I Module FvwmTaskBar
+#实时打印log在桌面上，我让它在屏幕的中间，见图的上方中间
+#这儿要给/var/log/messages的other读的权限
++ I Exec exec tail -n -10 -f /var/log/messages | osd_cat -A center -o 10 -i 10 -f fixed -c green -d 60 -s 6
++ I Exec exec /usr/lib/gnome-settings-daemon/gnome-settings-daemon
+
+# 下面是FVWM的退出函数，你可以在这里加入一些FVWM退出时要执行的打操作
+AddToFunc ExitFunction
++ I Test (!ToRestart) Exec rm -f $[FVWM_USERDIR]/icon.tmp.*
++ I Exec exec sync
+
+
+
+# some simple default key bindings:
+IgnoreModifiers L25
+Key Next         A       SCM     Next [*] Focus
+Key Prior        A       SCM     Prev [*] Focus
+Key Tab          M       WindowList
+Key F5 A M Exec exec firefox
+Key F12 A M Exec exec qq
+Key F2 A M Exec exec emacs
+Key F1 A M Exec exec gnome-terminal --geometry=128x10+0+0
+
+Key F3 A M Module FvwmConsole -terminal rxvt
+Key F4 A M Pick Close
+Key D A M Pick Thumbnail
+Key X A 4 Pick Destroy
+Key L A 4 Exec exec xlock
+Key D A 4 All (AcceptsFocus CurrentPage !Iconic !Shaded) Thumbnail
+Key X A CM Exec exec xmag
+Key Q A CM Quit
+Key R A CM Restart
+Key R A 4 Module FvwmForm FvwmForm-Run
+Key T A 4 Module FvwmTaskBar
+Key F1 A 4 Menu MenuFvwmRoot
+Key 0 A 4 Exec exec amixer set Master 5%+
+Key 9 A 4 Exec exec amixer set Master 5%-
+
+##########################Menu############################
+
+#下面这段是设定菜单的样式（透明的哦，我很喜欢），字体等相关参数。
+MenuStyle * Hilight3DOff, HilightBack #424164, ActiveFore green
+Colorset 0 Transparent
+MenuStyle * MenuColorset 0
+MenuStyle * Foreground grey90
+MenuStyle * Background #1c5572Key =  A 4 Exec exec amixer set Master 5%+
+MenuStyle * Font -*-simsun-medium-r-*-*-14-*-*-*-*-*-*-*
+MenuStyle * Font "shadow=0 1 SE:-adobe-helvetica-bold-r-*-*-12-*,-isas-fangsong ti-medium-r-normal-*-*-160-*-*-c-*-gb2312.1980-0"
+#MenuStyle * MenuColorset 0, HilightBack, ActiveColorset 1
+MenuStyle * BorderWidth 1, TitleUnderlines1, SeparatorsLong, TrianglesSolid
+MenuStyle * ItemFormat "%.2|%.5i%.5l%.5i%2.3>%2|"
+MenuStyle * AutomaticHotKeys
+MenuStyle * MenuFace VGradient 128 1 #2c80A0 1 #1c5572
+ColormapFocus FollowsFocus
+
+#下面这段是设定主菜单显示的程序及一些子菜单的名字，NOP是分割线。
+#-------------------------------------------------------------------------------------------------------------------
+
+DestroyMenu MenuFvwmRoot
+AddToMenu MenuFvwmRoot "Root Menu" Title
++ "命令行&Gterm" Exec exec gnome-terminal
++ "扩展菜单&Debian Menu"  Popup "/Debian"
++ "刷新Refresh" Refresh
+#+ "ReFresh &Window" RefreshWindow
++ "主目录Home" Exec exec nautilus --no-desktop
++ "显示桌面Desktop" All (AcceptsFocus CurrentPage !Iconic !Shaded) Thumbnail
++ "" Nop
++ "浏览器internet browser" Popup MenuInternet
++ "通讯工具IM" Popup MenuIM
++ "编辑阅读器Editor" Popup MenuEditors
++ "影音&播放器" Popup MenuMultimedia
++ "图片查看" Popup MenuImage
++ "收发邮件" Popup MenuMail
++ "其他工具"  Popup MenuUtilities
++ "Read &Fvwm Document" Popup FvwmManPage
++ "运行&Run..." Module FvwmForm FvwmForm-Run
++  "&S. $[gt.Fvwm Config Ops]"   Popup MenuFvwmConfig
+#+ "Fvwm Window Ops" Popup MenuFvwmWindowOps
++ "" Nop
++ "关闭Close" Popup MenuQuit-Verify
+
+#下面是设定每个子菜单要显示的程序，可根据自己的情况删加
+
+
+#浏览器
+DestroyMenu MenuInternet
+AddToMenu MenuInternet
+#+ "Gftp" Exec exec gftp
++ "Firefox-火狐" Exec exec firefox
++ "Links2" Exec exec links2 -g
++ "Konqueror" Exec exec konqueror
++ "w3m" Exec exec w3m
++ "lynx" Exec exec lynx
++ "opera" Exec exec opera
+
+#通讯工具
+DestroyMenu MenuIM
+AddToMenu MenuIM
++ "Gaim综合聊天" Exec exec pidgin
++ "QQ" Exec exec qq
++ "eva" Exec exec eva
+#+ "IRC Client" Exec exec xchat
+
+#邮件
+DestroyMenu MenuMail
+AddToMenu MenuMail
++ "evolution" Exec exec nevolution
++ "Mutt" Exec exec Mutt
+
+
+#编辑阅读器
+DestroyMenu MenuEditors
+AddToMenu MenuEditors
++ "XPDF" Exec exec xpdf
++ "Office" Exec exec openoffice
++ "Gedit" Exec exec gedit
+#+ "Kate" Exec exec kate
++ "Emacs CoffeeMachine" Exec exec emacs
+
+#影音&播放器
+DestroyMenu MenuMultimedia
+AddToMenu MenuMultimedia
++ "kubuntu-media-amarok" Exec exec amarok
++ "Xmms Media Player" Exec exec xmms
++ "" nop
++ "Mplayer" Exec exec gmplayer
++ "Realplayer" Exec exec realplay
+
++ "" nop
++ "Kmix" Exec exec kmix
+#图形图像
+DestroyMenu MenuImage
+AddToMenu MenuImage
++ "DisPlay" Exec exec display
++ "Gimp" Exec exec gimp
++ "Gnome之眼" Exec exec eog
++ "" nop
++ "Ksnapshot" Exec exec ksnapshot
++ "Gnome-shot" Exec exec gnome-panel-screenshot
++ "import" Exec exec import test.png
+#综合工具
+DestroyMenu MenuUtilities
+AddToMenu MenuUtilities
++ "&T. Top"       Exec exec xterm -T Top -n Top -e top
++ "Network Analyser" Exec exec gksudo etherape
++ "Nmap security Scanner" Exec exec nmapfe
++ "" nop
++ "&C. Calculator" Exec exec xcalc
++ "&M. Xman"      Exec exec xman
++ "&G. 放大器"      Exec exec xmag
++ "&R. 窗口资源树"   Exec exec editres
++ "&I. 程序安装器"       Exec exec gksudo synaptic
++ ""              Nop
++ "&D. $[gt.Reset X defaults]" Exec xrdb -load $HOME/.Xdefaults
++ "Xfont Selector" Exec exec xfontsel
++ "Window Information" Exec exec xmessage "`xwininfo`"
++ "" Nop
+
+#游戏
+#DestroyMenu MenuGames
+#AddToMenu MenuGames
+#+ MissingSubmenuFunction FuncFvwmMenuDirectory
+#+ "Chess Database analyser" Exec exec scid
+#+ "Eboard Chess Client" Exec exec eboard
+
+DestroyMenu MenuFvwmUtilities
+AddToMenu MenuFvwmUtilities     "$[gt.Utilities]" Title
+
+
+#关闭
+DestroyMenu MenuQuit-Verify
+AddToMenu MenuQuit-Verify "Really Quit Fvwm?" Title
++ "界面重启Just Restart FVWM ..." Restart
++ "关机Power Off" Exec exec gksudo init 0
++ "........" Nop
++ "重启电脑Reboot" Exec exec gksudo /sbin/reboot
++ "&Lock Screen" Exec exec xlock
++ "" Nop
++ "退出界面 Exit Now... " QuiT
++ "取消" Nop
+
+#配置界面
+DestroyMenu MenuFvwmConfig
+AddToMenu MenuFvwmConfig
++ "FvwmConsole" Module FvwmConsole -terminal rxvt
++ "Colour Browser" Exec exec gcolor
++ "Edit fvwm2rc" Exec exec emacs ~/.fvwm/.fvwm2rc
++ "Configure Screensaver..." Exec exec xscreensaver
++ "&S. $[gt.Sloppy Focus]"        FuncFvwmFocusPolicyChange SloppyFocus
++ "&C. $[gt.Click To Focus]"      FuncFvwmFocusPolicyChange ClickToFocus
++ "&F. $[gt.Focus Follows Mouse]" FuncFvwmFocusPolicyChange FocusFollowsMouse
++ "" Nop
++ "&1. $[gt.Colormap Follows Mouse]" ColormapFocus FollowsMouse
++ "&2. $[gt.Colormap Follows Focus]" ColormapFocus FollowsFocus
++ "" Nop
++ "&3. $[gt.Full Paging ON]"           EdgeScroll 100 100
++ "&4. $[gt.All Paging OFF]"           EdgeScroll 0 0
++ "&5. $[gt.Horizontal Paging Only]"   EdgeScroll 100 0
++ "&6. $[gt.Vertical Paging Only]"     EdgeScroll 0 100
++ "&7. $[gt.Partial Paging]"           EdgeScroll 50 50
++ "&8. $[gt.Full Paging && Edge Wrap]" EdgeScroll 100000 100000
+
+
+
+
+DestroyMenu MenuFvwmWindowOps
+AddToMenu MenuFvwmWindowOps
++ "Resize" Pick Resize
++ "Shade" Pick WindowShade Toggle
++ "" Nop
++ "Stick" Pick Stick
++ "Scroll" Pick Module FvwmScroll
++ "Refresh" Pick RefreshWindow
++ "" Nop
++ "Identify" Pick Module FvwmIdent
++ "Zoom" Pick Exec exec xmag -source $[w.width]x$[w.height]+$[w.x]+$[w.y] -mag 2
++ "" Nop
++ "Close" Close
++ "Destroy" Destroy
+
+DestroyFunc FuncFvwmFocusPolicyChange
+AddToFunc FuncFvwmFocusPolicyChange
++ I Style * $0
++ I Recapture
+
+DestroyFunc DestroyOnHold
+AddToFunc DestroyOnHold I Raise
++ C Schedule 50 Close
++ H Destroy
+
+AddToFunc StartFunction I FvwmEvent FvwmEvent-NewWindow
+
+AddToFunc Move-or-Raise I Raise
++ M Move
++ D WindowShade Toggle
+
+AddToFunc Maximize-Func M Maximize 0 100
++ C Maximize 0 80
++ D Maximize 100 100
+
+AddToFunc Move-or-Iconify I Raise
++ M Move
++ D Iconify
+
+AddToFunc Resize-or-Raise I Raise
++ M Resize
++ D Lower
+
+###################关于show desktop ###############################
+###参见Tavis Ormandy的配置
+#####
+# Name: Thumbnail
+# Purpose: Iconify a window with a reduced screenshot of the application
+# Window, looks really cool.
+#
+# Uses FvwmEvent to remove the Icon when deiconified.
+#
+#
+# If you have a slow machine, try changing -scale to -sample, the quality of the Icons
+# won't be as good, but they are generated much faster. for a different effect, try using
+# -scale $(($[w.width]/5))
+#
+# You can also remove the command that uses composite to try to superimpose a MiniIcon
+# onto the icon, if you dont like this.
+##################
+DestroyFunc Thumbnail
+AddToFunc Thumbnail
++ I Raise
++ I ThisWindow (!Iconic) SetEnv Icon-$[w.id] $[w.iconfile]
++ I ThisWindow (!Shaded, Iconifiable, !Iconic) PipeRead \
+"xwd -silent -id $[w.id] | convert -scale 128 -frame 1x1 \
+-mattecolor black -quality 0 xwd:- png:$[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+&& echo WindowStyle IconOverride, Icon $[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+|| echo Nop"
++ I TestRc (Match) Test (f $[w.miniiconfile], f $[FVWM_USERDIR]/icon.tmp.$[w.id].png) PipeRead \
+"composite -geometry +2+4 $[w.miniiconfile] $[FVWM_USERDIR]/icon.tmp.$[w.id].png \
+$[FVWM_USERDIR]/icon.tmp.$[w.id].png; echo Nop"
++ I Iconify
+
+DestroyFunc DeThumbnail
+AddToFunc DeThumbnail
++ I PipeRead "echo Test \\(i \\$\\[Icon-$[w.id]\\]\\) WindowStyle Icon \\$\\[Icon-$[w.id]\\]"
++ I TestRc (NoMatch) WindowStyle NoIconOverride, Icon
++ I Exec rm -f $[FVWM_USERDIR]/icon.tmp.$[w.id].png
++ I All (Iconic, CurrentPage) PlaceAgain icon
++ I UnsetEnv Icon-$[w.id]
+
+###################关于show desktop ###############################
+###参见Tavis Ormandy的配置
+# FvwmEvent can bind Commands to Events
+DestroyModuleConfig FvwmEvent: *
+*FvwmEvent: deiconify DeThumbnail
+*FvwmEvent: add_window NewWindowFunc
+*FvwmEvent: new_desk "SendToModule DeskControl ChangeButton desk Title $$[desk.n]"
+
+##################关于FvwmManPage##################################
+#------------------------------
+DestroyFunc ViewManpage
+AddToFunc ViewManPage
++ I Exec exec xterm -g 99x49 -e man $0
+DestroyMenu FvwmManPage
+AddToMenu FvwmManPage "FVWM Man Pages" Title
++ "fvwm" ViewManPage fvwm
++ "FvwmAnimate" ViewManPage FvwmAnimate
++ "FvwmAuto" ViewManPage FvwmAuto
++ "FvwmBacker" ViewManPage FvwmBacker
++ "FvwmBanner" ViewManPage FvwmBanner
++ "FvwmButtons" ViewManPage FvwmButtons
++ "%FvwmCommand" ViewManPage FvwmCommand
++ "FvwmConsole" ViewManPage FvwmConsole
++ "FvwmConsoleC.pl" ViewManPage FvwmConsoleC.pl
++ "FvwmCpp" ViewManPage FvwmCpp
++ "FvwmDebug" ViewManPage FvwmDebug
++ "FvwmDragWell" ViewManPage FvwmDragWell
++ "FvwmEvent" ViewManPage FvwmEvent
++ "FvwmForm" ViewManPage FvwmForm
++ "FvwmGtk" ViewManPage FvwmGtk
++ "FvwmGtkDebug" ViewManPage FvwmGtkDebug
++ "FvwmIconBox" ViewManPage FvwmIconBox
++ "FvwmIconMan" ViewManPage FvwmIconMan
++ "FvwmIdent" ViewManPage FvwmIdent
++ "FvwmM4" ViewManPage FvwmM4
++ "FvwmPager" ViewManPage FvwmPager
++ "FvwmPerl" ViewManPage FvwmPerl
++ "FvwmProxy" ViewManPage FvwmProxy
++ "FvwmRearrange" ViewManPage FvwmRearrange
++ "FvwmSave" ViewManPage FvwmSave
++ "FvwmSaveDesk" ViewManPage FvwmSaveDesk
++ "FvwmScript" ViewManPage FvwmScript
++ "FvwmScroll" ViewManPage FvwmScroll
++ "FvwmTaskBar" ViewManPage FvwmTaskBar
++ "FvwmTheme" ViewManPage FvwmTheme
++ "FvwmWharf" ViewManPage FvwmWharf
++ "FvwmWinList" ViewManPage FvwmWinList
++ "FvwmWindowMenu" ViewManPage FvwmWindowMenu
++ "" Nop
++ "fvwm-config" ViewManPage fvwm-config
++ "fvwm-perllib" ViewManPage fvwm-perllib
++ "fvwm-root" ViewManPage fvwm-root
++ "fvwm-bug" ViewManPage fvwm-bug
++ "fvwm-convert-2.2" ViewManPage fvwm-convert-2.2
++ "fvwm-convert-2.4" ViewManPage fvwm-convert-2.4
++ "fvwm-convert-2.6" ViewManPage fvwm-convert-2.6
++ "" Nop
++ "fvwm-menu-desktop" ViewManPage fvwm-menu-desktop
++ "fvwm-menu-directory" ViewManPage fvwm-menu-directory
++ "fvwm-menu-headlines" ViewManPage fvwm-menu-headlines
++ "fvwm-menu-xlock" ViewManPage fvwm-menu-xlock
+
+
+###################关于运行 FvwmForm-Run ############################
+###颜色的设置还没好
+####################
+DestroyModuleConfig FvwmForm-Run: *
+#Colorset 0 Transparent,fg white
+*FvwmForm-Run: Colorset 0
+#*FvwmForm-Run: Fore white
+#*FvwmForm-Run: Back #36648B
+#*FvwmForm-Run: Background #1c5572
+*FvwmForm-Run: ItemFore white
+*FvwmForm-Run: ItemBack #1c5572
+#*FvwmForm-Run: ItemBack Colorset 0
+*FvwmForm-Run: WarpPointer
+*FvwmForm-Run: Title "Run..."
+*FvwmForm-Run: Line left
+*FvwmForm-Run: Font "-*-simsun-medium-r-*-*-14-*-*-*-*-*-*-*"
+*FvwmForm-Run: ButtonFont "-*-simsun-medium-r-*-*-13-*-*-*-*-*-*-*"
+*FvwmForm-Run: Text " "
+*FvwmForm-Run: Line left
+*FvwmForm-Run: Text "CMD"
+*FvwmForm-Run: Input CMD 25 ""
+*FvwmForm-Run: Line left
+*FvwmForm-Run: Text " "
+*FvwmForm-Run: Line expand
+*FvwmForm-Run: Text ""
+*FvwmForm-Run: Button quit "Run" ^M
+*FvwmForm-Run: Command Exec exec $(CMD)
+*FvwmForm-Run: Text ""
+*FvwmForm-Run: Text ""
+*FvwmForm-Run: Button quit "Cancel"
+*FvwmForm-Run: Command Nop
+
+##############窗口图标化(Iconify) 和取消图标化(Deinconify) 的时候都有漂亮的动画########
+*FvwmAnimate: Delay 25
+*FvwmAnimate: Effect Random
+*FvwmAnimate: Width 3
+
+######################## FvwmButtons ButtonBar ################################
+#下面设定的是在我桌面的左上角的快捷程序按钮。其具体的样式（透明的），字体等。
+####见For-fvwm2rc-FvwmPager中的相关设置
+
+
+####################FvwmTaskBar任务条######################
+
+Style FvwmTaskBar NoTitle, WindowListSkip, CirculateSkip, Sticky, BorderWidth 1, NoHandles, StaysOnBottom
+Style FvwmTaskBar NeverFocus, Layer 0
+
+DestroyModuleConfig FvwmTaskBar: *
+#下面的这句话是把它放在上面的位置，我注销了
+#*FvwmTaskBar: Geometry -0-0
+*FvwmTaskBar: Rows 1
+*FvwmTaskBar: Font -*-simsun-medium-r-*-*-12-*-*-*-*-*-*-*
+*FvwmTaskBar: SelFont -*-simsun-medium-r-*-*-12-*-*-*-*-*-*-*
+*FvwmTaskBar: Colorset 41
+*FvwmTaskBar: Autohide
+*FvwmTaskBar: UseSkipList
+*FvwmTaskBar: PageOnly
+*FvwmTaskBar: ShowTips
+*FvwmTaskBar: TipsColorset 0
+*FvwmTaskBar: StartName FVWM
+#开始按钮显示的名称。（这里是FVWM，你可以换成“开始”字样）
+*FvwmTaskBar: StartMenu MenuFvwmRoot mouse -100p -104m
+#*FvwmTaskBar: Pixmap /home/gkp/.fvwm/image/title-active.png
+*FvwmTaskBar: NoBrightFocus
+*FvwmTaskBar: 3DFvwm
+*FvwmTaskBar: MailCheck 1
+#下面五段是关于颜色的设定。（背景，黑色。字体，白色）
+#*FvwmTaskBar: Back #3B3B3B
+#*FvwmTaskBar: Fore white
+#*FvwmTaskBar: FocusFore cornsilk
+#*FvwmTaskBar: IconBack #3B3B3B
+#*FvwmTaskBar: IconFore white
+#右下角显示时间，日期
+*FvwmTaskBar: ClockFormat %R %d/%m
+*FvwmTaskBar: Action Click 3 Menu MenuFvwmWindowOps mouse -1p -100m
+#点击“开始按钮”，菜单弹出的位置。
+
+
+#在任务条上显示的快捷程序。
+#*FvwmTaskBar: MailCommand Exec exec rxvt -e mutt
+*FvwmTaskBar: Button NoTitle , Icon showdesktop16x16.png, Action (Mouse 1) Thumbnail
+*FvwmTaskBar: Button NoTitle , Icon home16x16.png, Action (Mouse 1) Exec exec nautilus --no-desktop
+*FvwmTaskBar: Button NoTitle , Icon mplayer16x16.png, Action (Mouse 1) Exec exec gmplayer
+*FvwmTaskBar: Button NoTitle , Icon pidgin16x16.png, Action (Mouse 1) Exec exec pidgin
+*FvwmTaskBar: Button NoTitle , Icon stardict16x16.png, Action (Mouse 1) Exec exec stardict
+#*FvwmTaskBar: Button NoTitle , Icon ark.png, Action (Mouse 1) Exec exec ark
+#*FvwmTaskBar: Button NoTitle , Icon gimp16x16.png, Action (Mouse 1) Exec exec gimp
+
+
+########### FvwmPager虚拟桌面#################
+##见For-fvwm2rc-FvwmPager中的相关设置
+
+
+###########窗口样式#############
+
+#以“style”开头的语句，用来设置所有窗口的样式。
+
+style * Colorset 42, HilightColorset 41 # to use fg and bg
+#前景色和后景色
+Style * Font -*-simsun-medium-r-*-*-12-*-*-*-*-*-*-*
+#字体
+#Style * SmartPlacement, WindowShadeSteps 0, ResizeOutLine
+Style * Button 1, Button 2, Button 4, Button 6, Button 8, GrabFocusOff
+#标题栏上显示的按钮
+Style * BorderWidth 0, HandleWidth 1
+#Style * NoIcon #关闭窗口最小化和最大化时的动画。（如你喜欢改变窗口时的动画，就注销此句）
+#窗口最小化时成图标时，默认放在屏幕的左侧。下句是可具体设置其放置在屏幕的位置。（这里设的是在屏幕下面）
+#Style * IconBox 50 1050 1050 +15, SloppyFocus, MouseFocusClickRaises
+Style * IndexedIconName
+Style * MinOverlapPercentPlacement
+Style * MinOverlapPercentPlacementPenalties 2 5 1 2 0.5 50
+Style * ResizeOutLine
+Style * MouseFocusClickRaises
+Style * FocusFollowsMouse
+#所有窗口，都是鼠标移进去的时候得到键盘聚焦，鼠标移出来就失去聚焦
+Style * TileCascadePlacement
+#窗口出现的时候，先试图找一个可以放下它而不挡住其它窗口的地方，如果不行再采用层叠放置的方式
+Style * DecorateTransient
+
+#对所有名字以 "Fvwm" 开头的窗口(一般都是 FVWM 内部的模块)的设置。
+#它们都没有标题栏(NoTitle)，而且是sticky，也就是说即使桌面切换，它们也一直显示在屏幕上，
+style "Fvwm*" NoTitle, Sticky, WindowListSkip
+#（BorderWidth 0）边框宽度为 0， CirculateSkip 说明当FVWM要求轮询窗口进行批量操作时，这些窗口不被计算在内
+Style "Fvwm*" BorderWidth 0, CirculateSkipIcon, CirculateSkip
+#下面3行说明 FvwmPager, FvwmBanner ,FvwmButtons这3个模块一直显示在最上面,不被其他窗口覆盖。
+#Style "FvwmPager" StaysOnTop
+#Style "FvwmBanner" StaysOnTop
+#Style "FvwmButtons" StaysOnTop,ClickToFocus
+
+#下面是说明对于像“XMMS”等程序不添加标题栏。（XMMS自己有标题栏）
+#Style gaim NoTitle, EwmhMiniIconOverride
+Style xmms NoTitle
+Style qq NoTitle
+
+
+
+#下面是定义了窗口使用的色彩。（其中41和42号是透明）其他文件里的色彩设定，我都用下面的号码表记。
+#Colorset 0 fg #ffffff, fgsh #000000, bg #f6f6f6, sh #4bba43, hi #91b6db, Translucent #283e5e 80
+Colorset 0 fg #ffffff, fgsh #000000, bg #f6f6f6, sh #6e90b3, hi #91b6db, Translucent #283e5e 80
+Colorset 1 fg #000000, fgsh #b5b7b8, bg #ffffff, hi #ffffff, sh #9a9a9a, Translucent #dce0e7 70
+Colorset 3 fg #9aafbf, bg #000000, fgsh #000000, NoShape, RootTransparent, Tint #283e5e 70
+Colorset 4 fg #ffffff, bg #000000, fgsh #000000, Noshape, RootTransparent, Tint #101f36 70
+Colorset 41 RootTransparent buffer, fg white, bg average, Tint cyan 15, bgTint cyan 15 # tint is optional
+Colorset 42 RootTransparent buffer, fg white, bg average, Tint blut 15, bgTint blut 15 # tint is optional
+
+#下面是透明的实现。如不使用透明，把下面的注销。
+# Style * Colorset 41, HilightColorset 42 # to use fg and bg
+BorderStyle Inactive Colorset 42 -- flat
+BorderStyle Active Colorset 41 -- flat
+TitleStyle AllInactive Colorset 42 -- flat
+TitleStyle AllActive Colorset 41 -- flat
+#ButtonStyle All -- UseTitleStyle flat
+
+
+#我的设定很简单，其具体的含义请看王哏的指南。
+
+Mouse 1 R A Nop
+Mouse 2 R A WindowList
+Mouse 1 1 A Menu MenuFvwmWindowOps Nop
+Mouse 1 2 A Close
+Mouse 1 6 A Iconify
+Mouse 1 4 A Maximize
+Mouse 3 R A Menu MenuFvwmRoot
+Mouse 1 T A Move-or-Raise
+Mouse 1 I A Move-or-Iconify
+Mouse 1 W M Move-or-Raise
+#Mouse 4 4 A Exec exec amixer set Master 5%+
+#Mouse 5 4 A Exec exec amixer set Master 5%-
+
+#简单说，fvwm在标题栏里，于设了10个按钮的位置。基本上用不完，其排列为，从左边说，1 3 5 7 9 ，从右边说2 4 6 8 0。我只设了5个位置，其中8好位置还没完成。
+
+# 设置标题栏的
+# FVWM上面标题栏按扭的排列是
+# 1 3 5 7 9 0 8 6 4 2
+TitleStyle AllActive TiledPixmap bc.xpm ( ColorSet 8 -- Flat )
+TitleStyle AllInactive TiledPixmap bc.xpm ( ColorSet 8 -- Flat )
+TitleStyle Height 22 -- Flat
+
+ButtonStyle All Simple -- UseTitleStyle
+ButtonStyle All -- Flat
+
+AddButtonStyle 1 \
+ActiveUp (Pixmap menu.png -- flat) \
+ActiveDown (Pixmap menu.png -- flat) \
+Inactive (Pixmap menu.png -- flat)
+
+AddButtonStyle 2 \
+ActiveUp (Pixmap close.png -- flat) \
+ActiveDown (Pixmap close.png -- flat) \
+Inactive (Pixmap close.png -- flat)
+AddButtonStyle 4 \
+ActiveUp (Pixmap max.png -- flat) \
+ActiveDown (Pixmap max.png -- flat) \
+Inactive (Pixmap max.png -- flat)
+AddButtonStyle 6 \
+ActiveUp (Pixmap min.png -- flat) \
+ActiveDown (Pixmap min.png -- flat) \
+Inactive (Pixmap min.png -- flat)
+AddButtonStyle 8 \
+ActiveUp (Pixmap min.png -- flat) \
+ActiveDown (Pixmap min.png -- flat) \
+Inactive (Pixmap min.png -- flat)
+
+#按钮的样式
+ButtonStyle 2 Inactive Vector 4 30x30@3 60x60@3 60x30@4 30x60@3 -- Flat
+ButtonStyle 6 Inactive Vector 7 30x30@3 30x60@3 60x60@3 60x30@3 30x30@3 30x35@3 60x35@3 -- Flat
+ButtonStyle 4 Inactive Vector 5 30x60@3 60x60@3 60x50@3 30x50@3 30x60@3 -- Flat
+ButtonStyle 8 Inactive Vector 4 44x44@3 44x45@3 45x45@3 44x44@3 -- Flat
+ButtonStyle 1 Inactive Vector 4 44x44@3 44x45@3 45x45@3 44x44@3 -- Flat
+
+ButtonStyle 2 active Vector 4 30x30@3 60x60@3 60x30@4 30x60@3 -- Flat
+ButtonStyle 4 active Vector 7 30x30@3 30x60@3 60x60@3 60x30@3 30x30@3 30x35@3 60x35@3 -- Flat
+ButtonStyle 6 active Vector 5 30x60@3 60x60@3 60x50@3 30x50@3 30x60@3 -- Flat
+ButtonStyle 8 active Vector 4 44x44@3 44x45@3 45x45@3 44x44@3 -- Flat
+ButtonStyle 1 active Vector 4 44x44@3 44x45@3 45x45@3 44x44@3 -- Flat
+
+
+######模块自动隐藏##########
+
+
+# The autohiding functions
+AddToFunc autohide
++ I ThisWindow ($0) Deschedule $[w.id]
++ I ThisWindow ($0) KeepRc ThisWindow (shaded) WindowShade off
++ I TestRc (!Match) All ($0, !shaded) autohide_hide $1 $2
+
+AddToFunc autohide_hide
++ I Schedule $0 $[w.id] WindowShade $2
++ I Schedule $0 $[w.id] Deschedule $[w.id]
+
+# Start FvwmAuto
+AddToFunc StartFunction
++ I Module FvwmAuto FvwmAutohide -menter enter_handler
+
+#下面以"+ I"开头的是你设定要隐藏的模块。最后一个参数“S”表示隐藏的方向，这里是“向上隐藏”。相应的参数有N, S, E, W, NW, NE, SW or SE。
+# Add the windows you want to autohide
+AddToFunc enter_handler
+#+ I autohide FvwmButtons 500 S
+#+ I autohide FvwmPager 500 S
+#+ I autohide FvwmTaskBar 500 N
+#由于taskbar（任务条）还可以在f.taskbar里设置隐藏功能，我就在这里注销了这句。
+
+
+
+#===========================================================================
+#==========================================================================
+#这个是For-fvwm2rc-FvwmPager文件
+#================================================
+#================================================
+#这个就是fvwm-2.5.16的自己的配置文件，我只是稍微修改
+
+AddToFunc StartFunction I FvwmButtons BarButtons
+AddToFunc StartFunction I FvwmButtons DeskerPanelButtons
+#AddToFunc StartFunction I FvwmButtons MiniButtons
+#------------------------------------------------------------------------------
+#------------------ FvwmButtons: BarButtons
+#------------------------------------------------------------------------------
+
+Style BarButtons NoTitle, NoHandles, Sticky, WindowListSkip, \
+BorderWidth 4, CirculateSkip,NeverFocus
+
+DestroyModuleConfig BarButtons: *
+BarButtons: Hilight3DOff, HilightBack #424164, ActiveFore white
+#Colorset 0 Transparent,fg white #颜色
+*BarButtons: Colorset 41
+*BarButtons: Foreground grey90
+*BarButtons: Background #1c5572
+#*BarButtons: Fore Black
+#*BarButtons: Back #c3c3c3
+*BarButtons: Font "xft:sans-serif:Bold:pixelsize=10;-*-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*"
+# Geometry - really likes to pick its own size, but giving a position is OK
+# Warning: I've added a size geometry to avoid pbs if the fvwm_icons are
+# not in the image path ! Remove the size in this geometry especially if
+# you add buttons
+*BarButtons: Geometry 120x445-5-234
+# Layout: specify rows or columns, not both
+*BarButtons: Columns 2
+
+#LAPTOP 1 Are you a laptop user ?
+#*BarButtons: (2x1, Title "xapm", Swallow(Kill) "xapm" "Exec exec xapm -geometry -1500-1500 -p")
+# Define the buttons to use.....
+#PREF 3
+#这些图标都是系统自带的,在/usr/share/icons里面，我只是把它们放到这里了,改了
+#名字好记住,左右健的功能以及那9个小图标的功能
+*BarButtons: (1x2, Title FileMgr, Icon chmsee2_big.png, Action 'Exec exec  nautilus --no-desktop')
+*BarButtons: (1x2, Title Terminal, Icon terminal48x48.png, Action 'Exec exec gnome-terminal', \
+Action(Mouse 3) 'Exec exec xterm')
+*BarButtons: (1x2, Title Emacs, Icon emacs_48.png, Action 'Exec exec emacs')
+*BarButtons: (1x2, Title Editor, Icon editor_big.png, Action 'Exec exec gedit', \
+Action(Mouse 2) 'Exec exec kedit', \
+Action(Mouse 3) 'Exec exec kwrite')
+*BarButtons: (1x2, Title Gimp, Icon qterm_big.png, Action 'Exec exec eog', \
+Action(Mouse 2) 'Exec exec `import test.jpg`', \
+Action(Mouse 3) 'Exec exec gimp')
+*BarButtons: (1x2, Title Mplayer, Icon multimedia2_big.png, Action 'Exec exec gmplayer', \
+Action(Mouse 2) 'Exec exec realplay', \
+Action(Mouse 3) 'Exec exec gmplayer')
+*BarButtons: (1x2, Title www, Icon firefox_big.png, Action 'Exec exec firefox', \
+ Action(Mouse 2) 'Exec exec link2', \
+ Action(Mouse 3) 'Exec exec opera')
+)
+*BarButtons: (1x2, Padding 0 0, Container(Padding 0 0, Frame 2, Columns 3))
+*BarButtons: (Icon move16x16.png, Action Move)
+*BarButtons: (Icon resize16x16.png, Action Resize)
+*BarButtons: (Icon iconify16x16.png, Action Iconify)
+*BarButtons: (Icon maximize16x16.png, Action Maximize 90 90)
+#*BarButtons: (Icon shade16x16.png, Action WindowShade)
+*BarButtons: (Icon smile16x16.png, Action Nop)
+*BarButtons: (Icon stick16x16.png, Action Stick)
+*BarButtons: (Icon cross16x16.png, Action Delete)
+*BarButtons: (Icon bomb16x16.png, Action Destroy)
+*BarButtons: (Icon question16x16.png, Action Module FvwmIdent)
+*BarButtons: (End)
+*BarButtons: (1x2, Title "xload", Swallow "xload" "Exec exec nice -16 \
+xload -nolabel -update 4 -bg grey59 -hl grey70 \
+-geometry -1500-1500")
+*BarButtons: (1x2, Title "xclock", Swallow "xclock" "Exec \
+exec xclock -padding 0 -geometry -1500-1500")
+*BarButtons: (2x2, Swallow "FvwmPagerPager" 'FvwmPager FvwmPagerPager * *')
+
+
+#------------------------------------------------------------------------------
+#------------------ FvwmButtons: MiniButtons
+#------------------------------------------------------------------------------
+#在屏幕的右上角产生一排小的快捷键，需要自己加图标
+
+Style "MiniButtons" NoTitle, NoHandles, Sticky, WindowListSkip, \
+BorderWidth 0, CirculateSkip
+
+DestroyModuleConfig MiniButtons*
+*MiniButtons: Fore Black
+*MiniButtons: Back #c0c0c0
+*MiniButtons: Geometry -2+2
+*MiniButtons: Rows 1
+*MiniButtons: Padding 1 1
+#PREF 3
+*MiniButtons: - mini.term.xpm Exec exec xterm
+*MiniButtons: - mini.filemgr.xpm Exec exec xfm
+*MiniButtons: - mini.doc1.xpm Exec exec emacs
+*MiniButtons: - mini.calc.xpm Exec exec xcalc
+*MiniButtons: - mini.cd.xpm Exec exec xplaycd
+*MiniButtons: - mini.audiovol.xpm Exec exec xmixer
+*MiniButtons: - mini.happy.xpm Exec exec xmine
+*MiniButtons: - mini.bomb.xpm Destroy
+
+
+#------------------------------------------------------------------------------
+#------------------ FvwmButtons: DeskerPanelButtons
+#------------------------------------------------------------------------------
+Style "DeskerPanelButtons" NoTitle, NoHandles, Sticky, WindowListSkip, \
+BorderWidth 0, CirculateSkip,NeverFocus
+#Style "DeskerPanelButtons" StayOnTop
+DestroyModuleConfig DeskerPanelButtons: *
+*DeskerPanelButtons: Fore Black
+*DeskerPanelButtons: Back SeaGreen
+*DeskerPanelButtons: Geometry 12x79
+*DeskerPanelButtons: Rows 1
+*DeskerPanelButtons: Frame 1
+*DeskerPanelButtons: Padding 0 0
+#FAST 1
+*DeskerPanelButtons: (Panel(right, steps 12, delay 0, position module top, indicator10) "FvwmDesker" 'Module FvwmPager FvwmDesker 0 3')
+#SLOW 1
+#*DeskerPanelButtons: (Panel(right, steps 0, position module top, indicator10) "FvwmDesker" 'Module FvwmPager FvwmDesker 0 3')
+
+#------------------------------------------------------------------------------
+#------------------ IconBox
+#------------------------------------------------------------------------------
+Style "FvwmIconBox" NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip
+
+DestroyModuleConfig FvwmIconBox: *
+*FvwmIconBox: Back #c0c0c0
+*FvwmIconBox: Fore Black
+#WIN 1
+*FvwmIconBox: IconHiBack Blue4
+#FVWM 1
+#*FvwmIconBox: IconHiBack SlateBlue
+*FvwmIconBox: IconHiFore white
+*FvwmIconBox: Geometry +0-0
+*FvwmIconBox: MaxIconSize 48x48
+*FvwmIconBox: Font "xft:sans-serif:Bold:pixelsize=12;-*-helvetica-bold-r-*-*-12-*-*-*-*-*-*-*"
+*FvwmIconBox: SortIcons IconName
+#*FvwmIconBox: SortIcons ResClass
+*FvwmIconBox: Padding 10
+*FvwmIconBox: FrameWidth 0 0
+*FvwmIconBox: Lines 6
+*FvwmIconBox: SBWidth 11
+*FvwmIconBox: Placement Left Top
+*FvwmIconBox: HideSC Horizontal
+*FvwmIconBox: SetWMIconSize
+*FvwmIconBox: HilightFocusWin
+*FvwmIconBox: Resolution Desk
+*FvwmIconBox: UseSkipList
+# mouse bindings
+*FvwmIconBox: Mouse 1 Click DeiconifyFocusAndRaise
+*FvwmIconBox: Mouse 1 DoubleClick DeiconifyFocusAndWarp
+*FvwmIconBox: Mouse 2 Click Iconify
+*FvwmIconBox: Mouse 3 DoubleClick Iconify off
+*FvwmIconBox: Mouse 3 Click Menu Window-Ops3 c+0 -101m
+*FvwmIconBox: Mouse 3 DoubleClick FvwmIdent
+# Key bindings
+*FvwmIconBox: Key r RaiseLower
+*FvwmIconBox: Key space Iconify
+*FvwmIconBox: Key d Close
+# FvwmIconBox built-in functions
+*FvwmIconBox: Key n Next
+*FvwmIconBox: Key p Prev
+*FvwmIconBox: Key h Left
+*FvwmIconBox: Key j Down
+*FvwmIconBox: Key k Up
+*FvwmIconBox: Key l Right
+# animation
+*FvwmIconBoxNoIconAction SendToModule FvwmAnimate animate
+
+#------------------------------------------------------------------------------
+#------------------ FvwmPager: Swallowed by ButtonBar
+#------------------------------------------------------------------------------
+Style "FvwmPagerPager" NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip,NeverFocus
+
+DestroyModuleConfig FvwmPagerPager: *
+*FvwmPagerPager: UseSkipList
+#*FvwmPagerPager: Back grey60
+#*FvwmPagerPager: Fore black
+*FvwmPagerPager: Colorset * 41
+*FvwmPagerPager: Font "xft:monospace:Bold:pixelsize=10;-adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*"
+*FvwmPagerPager: HilightColorset * 42
+*FvwmPagerPager: MiniIcons
+*FvwmPagerPager: Balloons
+*FvwmPagerPager: BalloonFore black
+*FvwmPagerPager: BalloonBack bisque
+*FvwmPagerPager: BalloonFont "xft:monospace:Medium:pixelsize=10;-*-fixed-medium-r-*-*-10-*-*-*-*-*-*-*"
+*FvwmPagerPager: Geometry 319x79+5000+5000
+#WIN 1
+*FvwmPagerPager: WindowColors white grey51 white Blue4
+#FVWM 1
+#*FvwmPagerPager: WindowColors white grey51 white SlateBlue
+*FvwmPagerPager: Label 0 Fvwm
+*FvwmPagerPager: Label 1 Development
+*FvwmPagerPager: Label 2 Internet
+*FvwmPagerPager: Label 3 Misc
+*FvwmPagerPager: SmallFont "xft:sans-serif:Medium:pixelsize=8;-*-fixed-medium-r-*-*-8-*-*-*-*-*-*-*"
+
+
+#------------------------------------------------------------------------------
+#------------------ FvwmPager: FvwmDesker, the panel of StartPagerButtons
+#------------------------------------------------------------------------------
+Style "FvwmDesker" NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip,NeverFocus
+
+DestroyModuleConfig FvwmDesker: *
+*FvwmDesker: UseSkipList
+#*FvwmDesker: Back grey60
+#*FvwmDesker: Fore black
+*FvwmDesker: Colorset * 41
+*FvwmDesker: Font "xft:monospace:Bold:pixelsize=10;-*-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*"
+*FvwmDesker: HilightColorset * 42
+*FvwmDesker: Geometry 319x69+5000+5000
+*FvwmDesker: MiniIcons
+*FvwmDesker: Balloons
+*FvwmDesker: BalloonFore black
+*FvwmDesker: BalloonBack bisque
+*FvwmDesker: BalloonFont "xft:monospace:Medium:pixelsize=10;-*-fixed-medium-r-*-*-10-*-*-*-*-*-*-*"
+#WIN 1
+*FvwmDesker: WindowColors white grey51 white Blue4
+#FVWM 1
+*FvwmDesker: Label 0 Fvwm
+*FvwmDesker: Label 1 Development
+*FvwmDesker: Label 2 Internet
+*FvwmDesker: Label 3 Misc
+*FvwmDesker: SmallFont "xft:sans-serif:Medium:pixelsize=8;-*-fixed-medium-r-*-*-8-*-*-*-*-*-*-*"
+
+#------------------------------------------------------------------------------
+#------------------ FvwmWharf
+#------------------------------------------------------------------------------
+
+Style "FvwmWharf" NoTitle, NoHandles, Sticky, WindowListSkip, \
+BorderWidth 2, CirculateSkip
+
+DestroyModuleConfig FvwmWharf: *
+*FvwmWharf: Animate
+*FvwmWharf: AnimateMain
+*FvwmWharf: Geometry -2-50
+*FvwmWharf: Columns 1
+*FvwmWharf: Bgcolor Grey
+#*FvwmWharf: ForceSize
+*FvwmWharf: FullPush
+
+*FvwmWharf: TextureType 1
+*FvwmWharf: TextureColor WhiteSmoke DarkGrey
+
+*FvwmWharf X arrows2.xpm Folder
+*FvwmWharf kill rbomb2.xpm Close
+*FvwmWharf Recycler Jrecycle.xpm Restart
+*FvwmWharf Exit exit.xpm FvwmForm FvwmForm-QuitVerify
+*FvwmWharf xlock Jlock.xpm Exec exec xlock -nice 10 -mode random
+*FvwmWharf ~Folder
+#PREF 3
+*FvwmWharf term rterm2.xpm Exec exec xterm
+*FvwmWharf editor lemacs.xpm Exec exec emacs
+*FvwmWharf filemgr Xfm.xpm Exec exec xfm
+
+*FvwmWharf Y arrows2.xpm Folder
+*FvwmWharf netscape nscape.xpm Exec exec netscape
+*FvwmWharf xview xv.xpm Exec exec xv
+*FvwmWharf gimp gimp.xpm Exec exec gimp
+*FvwmWharf GV gv.xpm Exec exec ghostview
+*FvwmWharf ~Folder
+
+*FvwmWharf xclock nil MaxSwallow "xclock" xclock -padding 0 -bg white
+*FvwmWharf xload nil MaxSwallow "xload" \
+xload -nolabel -update 5 -bg grey51 -geometry -1500-1500
+*FvwmWharf pager nil MaxSwallowModule "FvwmPagerPager" FvwmPager FvwmPagerPager * *
+
+#------------------------------------------------------------------------------
+#------------------ FvwmWinList
+#------------------------------------------------------------------------------
+Style "FvwmWinList" NoTitle, Sticky, WindowListSkip, CirculateSkip
+
+DestroyModuleConfig FvwmWinList: *
+*FvwmWinList: Back #c3c3c3
+*FvwmWinList: Fore Black
+#WIN 1
+*FvwmWinList: FocusBack Blue4
+#FVWM 1
+#*FvwmWinList: FocusBack SlateBlue
+*FvwmWinList: FocusFore white
+*FvwmWinList: IconBack grey51
+*FvwmWinList: IconFore Black
+*FvwmWinList: Font "xft:sans-serif:Medium:pixelsize=12;-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-*-*"
+*FvwmWinList: Action Click1 DeiconifyFocusAndRaise
+*FvwmWinList: Action Click2 Iconify
+*FvwmWinList: Action Click3 Menu Window-Ops3 c+0 -101m
+*FvwmWinList: UseSkipList
+*FvwmWinList: ShowCurrentDesk
+*FvwmWinList: MinWidth 180
+*FvwmWinList: MaxWidth 250
+*FvwmWinList: Geometry +0-0
+*FvwmWinList: NoIconAction SendToModule FvwmAnimate animate 
+
+Key z A 4 Next (gnome-terminal) WindowShade
+Stroke N654 1 R N Exec gnome-terminal --geometry=220+1+5+0
+Style gnome-terminal !Title, !Borders, !Iconifiable, Sticky, StaysOnTop, WindowListSkip
